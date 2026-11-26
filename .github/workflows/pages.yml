@@ -1,0 +1,48 @@
+# Equivalente ao .gitlab-ci.yml da prática:
+#   stage test   -> job validate-html (roda em todo push e pull request)
+#   stage deploy -> job deploy-pages  (roda só na branch padrão, publica public/ no GitHub Pages)
+name: Validação e GitHub Pages
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-html:
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Valida public/index.html
+        run: |
+          test -s public/index.html
+          grep -qi "<html" public/index.html
+          grep -qi "<title" public/index.html
+
+  deploy-pages:
+    needs: validate-html
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: test -s public/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - id: deployment
+        uses: actions/deploy-pages@v4
