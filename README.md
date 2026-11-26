@@ -10,6 +10,13 @@ tag de versão e publicação automatizada.
 > Adaptação: a prática original usa GitLab. Aqui foi usado o GitHub. Equivalências:
 > Merge Request → Pull Request, `.gitlab-ci.yml` → GitHub Actions, GitLab Pages → GitHub Pages.
 
+## Página publicada
+
+https://renatopiovesan.github.io/projeto-git/
+
+Publicada automaticamente pelo GitHub Actions a cada push na `main`, depois que o job
+`validate-html` passa.
+
 ## Estrutura
 
 ```
